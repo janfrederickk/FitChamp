@@ -1,2 +1,2 @@
-python-fit-tool
+fit-tool
 garminconnect
