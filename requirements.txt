@@ -1,2 +1,2 @@
-fitparse
+garmin-fit-sdk
 garminconnect

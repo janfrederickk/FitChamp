@@ -24,21 +24,4 @@ jobs:
           GARMIN_USER: ${{ secrets.GARMIN_USER }}
           GARMIN_PASS: ${{ secrets.GARMIN_PASS }}
         run: |
-          python -c "
-          import os
-          from fitgen import generate_fit
-          from garminconnect import Garmin
-
-          filename = 'ringen_training.fit'
-          generate_fit(filename, warmup_dur=15, warmup_hr=140,
-                      training_dur=65, training_min_hr=150,
-                      training_max_hr=170, cooldown_dur=10,
-                      cooldown_hr=140)
-
-          username = os.getenv('GARMIN_USER')
-          password = os.getenv('GARMIN_PASS')
-          client = Garmin(username, password)
-          client.login()
-          with open(filename,'rb') as f:
-              client.upload_activity(f, 'fit')
-          print('✅ Upload erfolgreich!')"
+          python fitgen.py

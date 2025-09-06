@@ -1,69 +1,66 @@
-import random
+import os
 import datetime
-from fitparse import FitFile
-from fitparse.records import Record
+import random
+from garminconnect import (
+    Garmin,
+    GarminConnectConnectionError,
+    GarminConnectAuthenticationError,
+    GarminConnectTooManyRequestsError
+)
+from garmin_fit_sdk import FitFile, FitSessionMessage, FitRecordMessage
 
-def generate_fit(filename="ringen_training.fit",
-                 warmup_dur=15, warmup_hr=140,
-                 training_dur=65, training_min_hr=150, training_max_hr=170,
-                 cooldown_dur=10, cooldown_hr=140):
+# Get Garmin credentials from environment variables
+EMAIL = os.getenv("GARMIN_USER")
+PASSWORD = os.getenv("GARMIN_PASS")
 
-    # Convert minutes to seconds
-    warmup_dur *= 60
-    training_dur *= 60
-    cooldown_dur *= 60
+if not EMAIL or not PASSWORD:
+    raise ValueError("GARMIN_USER and GARMIN_PASS environment variables must be set.")
 
-    # Start time 90 minutes in the past
-    start_time = datetime.datetime.now() - datetime.timedelta(minutes=90)
-    start_time = start_time.replace(microsecond=0)
-    time_cursor = start_time
+# Activity parameters
+WARMUP_DURATION = 15 * 60  # 15 minutes in seconds
+TRAINING_DURATION = 65 * 60  # 65 minutes in seconds
+COOLDOWN_DURATION = 10 * 60  # 10 minutes in seconds
+TOTAL_DURATION = WARMUP_DURATION + TRAINING_DURATION + COOLDOWN_DURATION
 
-    # Create a new FIT file
-    fitfile = FitFile()
+# Calculate start time (90 minutes ago)
+start_time = datetime.datetime.now() - datetime.timedelta(minutes=90)
+start_time = start_time.replace(microsecond=0)
 
-    # Add activity metadata
-    fitfile.add_file_id(type="activity", manufacturer="garmin", product=1, time_created=start_time)
-    fitfile.add_session(
-        start_time=start_time,
-        sport="mixed_martial_arts",  # MMA
-        sub_sport="generic",
-        total_elapsed_time=warmup_dur + training_dur + cooldown_dur,
-        total_timer_time=warmup_dur + training_dur + cooldown_dur
-    )
+# Initialize FIT file
+fit_file = FitFile()
 
-    fitfile.add_lap(
-        start_time=start_time,
-        sport="mixed_martial_arts",
-        sub_sport="generic",
-        total_elapsed_time=warmup_dur + training_dur + cooldown_dur
-    )
+# Add session message
+fit_file.add_message(FitSessionMessage(
+    sport='mixed_martial_arts',
+    start_time=start_time,
+    total_elapsed_time=TOTAL_DURATION
+))
 
-    # Helper to add HR record
-    def add_hr_record(ts, hr):
-        record = Record()
-        record.timestamp = ts
-        record.heart_rate = int(hr)
-        fitfile.add_record(record)
+# Add heart rate records
+time_cursor = start_time
+for i in range(TOTAL_DURATION):
+    if i < WARMUP_DURATION:
+        hr = 100 + (140 - 100) * (i / WARMUP_DURATION)
+    elif i < WARMUP_DURATION + TRAINING_DURATION:
+        hr = random.randint(150, 170)
+    else:
+        hr = 170 - (170 - 140) * ((i - WARMUP_DURATION - TRAINING_DURATION) / COOLDOWN_DURATION)
+    fit_file.add_message(FitRecordMessage(timestamp=time_cursor, heart_rate=int(hr)))
+    time_cursor += datetime.timedelta(seconds=1)
 
-    # Warm-up
-    for i in range(warmup_dur):
-        hr = 100 + (warmup_hr - 100) * (i / warmup_dur)
-        add_hr_record(time_cursor, hr)
-        time_cursor += datetime.timedelta(seconds=1)
+# Save FIT file
+fit_file_path = 'mma_training_activity.fit'
+fit_file.to_file(fit_file_path)
+print(f"✅ Activity FIT file created: {fit_file_path}")
 
-    # Training
-    for i in range(training_dur):
-        hr = random.randint(training_min_hr, training_max_hr)
-        add_hr_record(time_cursor, hr)
-        time_cursor += datetime.timedelta(seconds=1)
-
-    # Cool-down
-    for i in range(cooldown_dur):
-        hr = training_max_hr - (training_max_hr - cooldown_hr) * (i / cooldown_dur)
-        add_hr_record(time_cursor, hr)
-        time_cursor += datetime.timedelta(seconds=1)
-
-    # Save the FIT file
-    fitfile.save(filename)
-    print(f"✅ FIT file '{filename}' generated successfully!")
-    return filename
+# Upload to Garmin Connect
+try:
+    client = Garmin(EMAIL, PASSWORD)
+    client.login()
+    with open(fit_file_path, 'rb') as f:
+        client.upload_activity(f)
+    print("✅ Activity uploaded to Garmin Connect!")
+except (GarminConnectAuthenticationError, GarminConnectConnectionError) as e:
+    print(f"Error uploading activity: {e}")
+except GarminConnectTooManyRequestsError:
+    print("Too many requests. Please try again later.")
