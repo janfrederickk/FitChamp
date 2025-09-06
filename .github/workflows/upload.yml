@@ -1,27 +1,43 @@
-name: Garmin Ringen Upload
+name: Generate and Upload MMA Activity
 
 on:
-  workflow_dispatch:  # manuelles Auslösen
+  workflow_dispatch:
 
 jobs:
-  upload:
-    runs-on: ubuntu-latest
+  mma-activity:
+    runs-on: windows-latest
+
     steps:
-      - name: Repo auschecken
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Python installieren
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '7.0.x'
+
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: '3.11'
 
-      - name: Abhängigkeiten installieren
+      - name: Install Python dependencies
         run: |
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          pip install garminconnect
 
-      - name: FIT-Datei erzeugen & hochladen
+      - name: Set Garmin credentials
         env:
           GARMIN_USER: ${{ secrets.GARMIN_USER }}
           GARMIN_PASS: ${{ secrets.GARMIN_PASS }}
         run: |
-          python fitgen.py
+          echo "Garmin credentials set as environment variables"
+
+      - name: Build and run C# console app
+        run: dotnet run --project FitChamp/FitChamp.csproj
+
+      - name: Upload FIT file with Python
+        run: python upload_to_garmin.py
+        env:
+          GARMIN_USER: ${{ secrets.GARMIN_USER }}
+          GARMIN_PASS: ${{ secrets.GARMIN_PASS }}
