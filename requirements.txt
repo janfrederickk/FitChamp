@@ -1,2 +1,2 @@
-garmin-fit-sdk
+fit-tool
 garminconnect
