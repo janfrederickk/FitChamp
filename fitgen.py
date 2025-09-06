@@ -1,6 +1,7 @@
 import random
 import datetime
-from fit_tool import FitFile, records
+from fitparse import FitFile
+from fitparse.records import Record
 
 def generate_fit(filename="ringen_training.fit",
                  warmup_dur=15, warmup_hr=140,
@@ -12,12 +13,13 @@ def generate_fit(filename="ringen_training.fit",
     training_dur *= 60
     cooldown_dur *= 60
 
-    fitfile = FitFile()
-
     # Start time 90 minutes in the past
     start_time = datetime.datetime.now() - datetime.timedelta(minutes=90)
     start_time = start_time.replace(microsecond=0)
     time_cursor = start_time
+
+    # Create a new FIT file
+    fitfile = FitFile()
 
     # Add activity metadata
     fitfile.add_file_id(type="activity", manufacturer="garmin", product=1, time_created=start_time)
@@ -38,10 +40,10 @@ def generate_fit(filename="ringen_training.fit",
 
     # Helper to add HR record
     def add_hr_record(ts, hr):
-        fitfile.add_record({
-            'timestamp': ts,
-            'heart_rate': int(hr)
-        })
+        record = Record()
+        record.timestamp = ts
+        record.heart_rate = int(hr)
+        fitfile.add_record(record)
 
     # Warm-up
     for i in range(warmup_dur):

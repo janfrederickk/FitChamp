@@ -1,2 +1,2 @@
-fit-tool
+fitparse
 garminconnect
