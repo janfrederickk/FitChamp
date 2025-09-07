@@ -1,21 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "\\\\wsl.localhost\\Ubuntu\\home\\jan\\dev\\FitChamp\\FitChamp\\FitChamp.csproj": {}
+    "C:\\Users\\wacke\\RiderProjects\\FitChamp\\FitChamp.csproj": {}
   },
   "projects": {
-    "\\\\wsl.localhost\\Ubuntu\\home\\jan\\dev\\FitChamp\\FitChamp\\FitChamp.csproj": {
+    "C:\\Users\\wacke\\RiderProjects\\FitChamp\\FitChamp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "\\\\wsl.localhost\\Ubuntu\\home\\jan\\dev\\FitChamp\\FitChamp\\FitChamp.csproj",
+        "projectUniqueName": "C:\\Users\\wacke\\RiderProjects\\FitChamp\\FitChamp.csproj",
         "projectName": "FitChamp",
-        "projectPath": "\\\\wsl.localhost\\Ubuntu\\home\\jan\\dev\\FitChamp\\FitChamp\\FitChamp.csproj",
+        "projectPath": "C:\\Users\\wacke\\RiderProjects\\FitChamp\\FitChamp.csproj",
         "packagesPath": "C:\\Users\\wacke\\.nuget\\packages\\",
-        "outputPath": "\\\\wsl.localhost\\Ubuntu\\home\\jan\\dev\\FitChamp\\FitChamp\\obj\\",
+        "outputPath": "C:\\Users\\wacke\\RiderProjects\\FitChamp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet"
         ],
         "configFilePaths": [
           "C:\\Users\\wacke\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -51,6 +51,12 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
+          "dependencies": {
+            "Garmin.FIT.Sdk": {
+              "target": "Package",
+              "version": "[21.171.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

@@ -1,0 +1,41 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "FitChamp/1.0.0": {
+        "dependencies": {
+          "Garmin.FIT.Sdk": "21.171.0"
+        },
+        "runtime": {
+          "FitChamp.dll": {}
+        }
+      },
+      "Garmin.FIT.Sdk/21.171.0": {
+        "runtime": {
+          "lib/netcoreapp2.0/fitsdk.dll": {
+            "assemblyVersion": "21.171.0.0",
+            "fileVersion": "21.171.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "FitChamp/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Garmin.FIT.Sdk/21.171.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-TIBeH+5oVF82KsZQVhLXsv4Ke7fGL3dZKG0q/gImNTceEyPBfDEwxKdu4jaww/QJyatHuKdmjKxS0gwIh/1K6g==",
+      "path": "garmin.fit.sdk/21.171.0",
+      "hashPath": "garmin.fit.sdk.21.171.0.nupkg.sha512"
+    }
+  }
+}

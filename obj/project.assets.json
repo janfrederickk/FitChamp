@@ -1,29 +1,58 @@
 {
   "version": 3,
   "targets": {
-    "net9.0": {}
+    "net9.0": {
+      "Garmin.FIT.Sdk/21.171.0": {
+        "type": "package",
+        "compile": {
+          "lib/netcoreapp2.0/fitsdk.dll": {}
+        },
+        "runtime": {
+          "lib/netcoreapp2.0/fitsdk.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "Garmin.FIT.Sdk/21.171.0": {
+      "sha512": "TIBeH+5oVF82KsZQVhLXsv4Ke7fGL3dZKG0q/gImNTceEyPBfDEwxKdu4jaww/QJyatHuKdmjKxS0gwIh/1K6g==",
+      "type": "package",
+      "path": "garmin.fit.sdk/21.171.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.txt",
+        "README.md",
+        "garmin.fit.sdk.21.171.0.nupkg.sha512",
+        "garmin.fit.sdk.nuspec",
+        "lib/net46/fitsdk.dll",
+        "lib/netcoreapp2.0/fitsdk.dll",
+        "lib/netstandard2.0/fitsdk.dll"
+      ]
+    }
+  },
   "projectFileDependencyGroups": {
-    "net9.0": []
+    "net9.0": [
+      "Garmin.FIT.Sdk >= 21.171.0"
+    ]
   },
   "packageFolders": {
     "C:\\Users\\wacke\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
-    "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\": {}
+    "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "\\\\wsl.localhost\\Ubuntu\\home\\jan\\dev\\FitChamp\\FitChamp\\FitChamp.csproj",
+      "projectUniqueName": "C:\\Users\\wacke\\RiderProjects\\FitChamp\\FitChamp.csproj",
       "projectName": "FitChamp",
-      "projectPath": "\\\\wsl.localhost\\Ubuntu\\home\\jan\\dev\\FitChamp\\FitChamp\\FitChamp.csproj",
+      "projectPath": "C:\\Users\\wacke\\RiderProjects\\FitChamp\\FitChamp.csproj",
       "packagesPath": "C:\\Users\\wacke\\.nuget\\packages\\",
-      "outputPath": "\\\\wsl.localhost\\Ubuntu\\home\\jan\\dev\\FitChamp\\FitChamp\\obj\\",
+      "outputPath": "C:\\Users\\wacke\\RiderProjects\\FitChamp\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-        "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+        "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet"
       ],
       "configFilePaths": [
         "C:\\Users\\wacke\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -59,6 +88,12 @@
     "frameworks": {
       "net9.0": {
         "targetAlias": "net9.0",
+        "dependencies": {
+          "Garmin.FIT.Sdk": {
+            "target": "Package",
+            "version": "[21.171.0, )"
+          }
+        },
         "imports": [
           "net461",
           "net462",
