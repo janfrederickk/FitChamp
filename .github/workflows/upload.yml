@@ -14,7 +14,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '7.0.x'
+          dotnet-version: '9.0.x'
 
       - name: Setup Python
         uses: actions/setup-python@v4
@@ -34,7 +34,7 @@ jobs:
           echo "Garmin credentials set as environment variables"
 
       - name: Build and run C# console app
-        run: dotnet run --project FitChamp/FitChamp.csproj
+        run: dotnet run --project FitChamp.csproj
 
       - name: Upload FIT file with Python
         run: python upload_to_garmin.py
