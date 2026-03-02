@@ -37,7 +37,7 @@ jobs:
         run: dotnet run --project FitChamp.csproj
 
       - name: Upload FIT file with Python
-        run: python upload_to_garmin.py
+        run: python upload_to_garmin.py Ringen_Training.fit
         env:
           GARMIN_USER: ${{ secrets.GARMIN_USER }}
           GARMIN_PASS: ${{ secrets.GARMIN_PASS }}
