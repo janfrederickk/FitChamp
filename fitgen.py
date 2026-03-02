@@ -66,8 +66,7 @@ if not garmin_user or not garmin_pass:
 try:
     client = Garmin(garmin_user, garmin_pass)
     client.login()
-    with open(fit_file_path, 'rb') as f:
-        client.upload_activity(f)
+    client.upload_activity(fit_file_path)
     print("✅ Activity uploaded to Garmin Connect!")
 except Exception as e:
     print(f"Error uploading activity: {e}")
