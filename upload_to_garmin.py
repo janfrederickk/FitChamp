@@ -71,8 +71,7 @@ def main() -> int:
     client = Garmin(email, password)
     client.login()
 
-    with fit_path.open("rb") as f:
-        client.upload_activity(f)
+    client.upload_activity(str(fit_path))
 
     print(f"✅ Activity uploaded: {fit_path}")
     return 0
