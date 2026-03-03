@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FitChamp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+74012627bebe78d2859d157bf9f85c479f5e0305")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e292429bfd9cf4c3d79f437a8ffe21e338d50a6a")]
 [assembly: System.Reflection.AssemblyProductAttribute("FitChamp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FitChamp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
