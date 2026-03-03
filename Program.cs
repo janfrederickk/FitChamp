@@ -139,7 +139,7 @@ static void CreateTimeBasedActivity()
     sessionMesg.SetSubSport(SubSport.Hiit);
     sessionMesg.SetFirstLapIndex(0);
     sessionMesg.SetNumLaps(1);
-    sessionMesg.SetTotalCalories((ushort?)random.Next(975, 1275));
+    sessionMesg.SetTotalCalories((ushort?)random.Next(900, 1100));
     messages.Add(sessionMesg);
 
     // Every FIT ACTIVITY file MUST contain EXACTLY one Activity message
