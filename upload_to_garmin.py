@@ -73,7 +73,7 @@ def main() -> int:
 
     client.upload_activity(str(fit_path))
 
-    print(f"✅ Activity uploaded: {fit_path}")
+    print(f"[OK] Activity uploaded: {fit_path}")
     return 0
 
 
