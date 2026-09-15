@@ -1,0 +1,141 @@
+---
+description: Training Planner development guidelines — architecture, conventions, and MVP boundaries
+alwaysApply: true
+---
+
+# Training Planner
+
+Canonical plan: `docs/TRAINING_PLANNER_ARCHITECTURE.md` — read it before non-trivial changes.
+
+## Product
+
+Personal endurance-training platform: local-first planning, adaptive AI proposals (user approval required), Intervals.icu integration for MVP.
+
+**Core principles (never violate):**
+
+1. **Local-first** — PostgreSQL is the source of truth. Calendar, analytics, and AI read from the DB, not live external APIs.
+2. **Provider-agnostic domain** — Intervals.icu, Zwift, Garmin, GitHub Action are Infrastructure adapters only.
+3. **Proposal → approval** — AI and coach chat never silently mutate the calendar.
+4. **Best-available stress** — Use objective, subjective, or assumed load. Never fabricate RPE or Feeling.
+5. **Multi-user ready** — Scope all tenant data by `AthleteId` from day one.
+
+## Tech stack
+
+- .NET 10, ASP.NET Core MVC, Razor Views, HTMX where useful
+- EF Core + PostgreSQL, ASP.NET Core Identity
+- Bootstrap 5 (MVP), HttpClientFactory, Hangfire, Serilog, OpenTelemetry
+- xUnit + Testcontainers + Docker
+
+Do not add projects beyond the four listed below unless explicitly requested.
+
+## Solution structure
+
+```
+TrainingPlanner.sln
+src/
+  TrainingPlanner.Domain          # entities, enums, value objects — no external deps
+  TrainingPlanner.Application     # use cases, abstractions, validators, TrainingContext
+  TrainingPlanner.Infrastructure  # EF Core, integrations, Hangfire, provider DTOs
+  TrainingPlanner.Web             # MVC controllers, views, Program.cs
+tests/
+  TrainingPlanner.Domain.Tests
+  TrainingPlanner.Application.Tests
+  TrainingPlanner.Integration.Tests
+```
+
+**Dependency rule:** Web → Infrastructure → Application → Domain.
+
+Provider-specific DTOs and API clients stay in Infrastructure. Domain must not reference Intervals.icu, OpenAI, Zwift, or Garmin types.
+
+## Key abstractions (Application layer)
+
+Use small focused interfaces — no giant generic provider interface:
+
+- `IActivityProvider` — import completed activities (batch + cursor)
+- `IWorkoutPublisher` — export planned workouts
+- `IExternalConnectionService` — manage provider connections
+- `IAiTrainingPlanner` — structured AI proposals
+- `ITrainingSummaryService` — rollups for TrainingContext
+- `ITrainingPlanValidator` — deterministic validation rules
+
+MVP implements `IntervalsIcuActivityProvider` only. Zwift/Garmin are future Infrastructure adapters reusing the same import pipeline.
+
+## Activity import
+
+```
+External provider → IActivityProvider → normalize → TrainingActivity → PostgreSQL
+```
+
+- Background import via Hangfire; support "Sync now".
+- Incremental, idempotent, retryable. Dedupe via `external_entity_links` unique `(athlete_id, provider, entity_type, external_id)`.
+- Never query Intervals.icu on page load.
+
+## AI planning
+
+- Model: **GPT 5.6** (primary), gpt-4o-mini (configurable fallback).
+- Build `TrainingContext` from PostgreSQL summaries only — not raw API data.
+- Return **structured JSON** (JSON Schema / structured outputs). Never parse free text for workout data.
+- Flow: TrainingContext → AI proposal → `TrainingPlanValidator` → user review → approval → DB → Intervals.icu export job.
+- Store proposals, context snapshots, explanations, and `model_used` for reproducibility.
+
+## Domain rules
+
+- `TrainingActivity` (completed) and `PlannedWorkout` (planned) are separate entities; link via `WorkoutCompletion`.
+- RPE and Feeling live in `ActivityFeedback` — optional. Wrestling: `RpeRequired = false`, use `SportProfile` default load.
+- Recurring training: rule + exceptions, virtual calendar expansion. Do not pre-insert hundreds of rows.
+- A-races and locked recurring training (e.g. wrestling) must never be auto-moved by AI.
+- Missing optional fields are normal — do not force defaults into nullable metrics (power on runs, RPE on wrestling).
+
+## Validation
+
+`TrainingPlanValidator` runs after every AI response and before approval. Errors block; warnings inform. Key rules: no overlaps, respect availability/locks, max hard sessions, no A-race moves, volume increase warnings.
+
+## Background jobs (Hangfire)
+
+All jobs idempotent. Log to `sync_logs` with correlation ID. MVP jobs: `ImportActivitiesJob`, `MatchActivitiesToPlannedWorkoutsJob`, `RecalculateTrainingSummariesJob`, `SyncPlannedWorkoutsJob`, `RetryFailedSyncJob`.
+
+## Security
+
+- Identity for MVC; per-athlete API keys for external POST endpoints.
+- Encrypt provider credentials (Data Protection API). Never log secrets or tokens.
+- Secrets: User Secrets (local), `.env` (Docker dev), vault/secrets (production).
+
+## Observability
+
+Serilog structured logs + OpenTelemetry traces/metrics. Enrich with correlation ID, `AthleteId`, `SyncId`, `ProposalId`.
+
+## Testing
+
+- Domain/Application: xUnit unit tests.
+- Integration: Testcontainers PostgreSQL.
+- Required scenarios: duplicate import idempotency, updated activity upsert, missing RPE, wrestling without RPE, planned-vs-actual matching, failed sync retry, AI schema validation.
+- No live GPT calls in CI — mock `IAiTrainingPlanner`.
+
+## MVP scope
+
+**In:** Identity, athlete profile, Intervals.icu import, activities, calendar, recurring wrestling, availability, goals, planned workouts + steps, AI generate 7 days, validator, approval, export to Intervals.icu, planned vs actual matching.
+
+**Out:** Direct Garmin/Zwift API, coach chat, weekly review AI, weather, nutrition, multi-user coach mode, mobile app.
+
+## Implementation order
+
+Follow the roadmap in the architecture doc. Start with **vertical slice 1** unless told otherwise:
+
+1. Solution skeleton + Docker + Identity + PostgreSQL
+2. Intervals.icu connection + background import
+3. Activities list + read-only weekly calendar
+4. Integration test: duplicate import idempotency
+
+Do not jump ahead to AI planning before local activity import works end-to-end.
+
+## Code style
+
+- Pragmatic Clean Architecture — minimize scope, match existing conventions, no over-abstraction.
+- EF Core migrations for schema changes; snake_case table names in PostgreSQL.
+- Use `HttpClientFactory` typed clients for external APIs.
+- HTMX for partial page updates (sync status, calendar edits, proposal review) — not a SPA.
+- Comments only for non-obvious business logic.
+
+## Existing repo context
+
+This repo also contains FitChamp (wrestling FIT generator + Garmin GitHub Action). That tooling coexists with Training Planner. Future wrestling integration: Intervals.icu sync or `POST /api/external/activities` (see architecture doc §15).
