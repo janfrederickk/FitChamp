@@ -1,5 +1,7 @@
 # Wrestling FIT File Generator & Garmin Upload
 
+> **Training Planner** (planned, not implemented yet): a .NET 10 personal training-planning platform with Intervals.icu sync and AI-assisted planning. See [docs/training-planner/PRODUCT_AND_ARCHITECTURE.md](docs/training-planner/PRODUCT_AND_ARCHITECTURE.md). The wrestling FIT → Garmin GitHub Action below remains the current operational tool and a future activity source for that product.
+
 This repository generates a **synthetic FIT file** for your wrestling training and uploads it directly to **Garmin Connect**.  
 The activity is logged as **Mixed Martial Arts** with the name **"Ringen Training"**.
 
